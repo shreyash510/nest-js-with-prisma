@@ -1,11 +1,16 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { LocalAuthGuard } from 'src/utils/Guard';
 import { CreateUserDto } from './dto/user.dto';
 import { UserService } from './user.service';
+import { JwtService } from '@nestjs/jwt';
+
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtTokenService: JwtService,
+    ) {}
 
   @Get( )
   getHello(): string {
@@ -38,9 +43,24 @@ export class UserController {
   }
 
   @Post('login')
-  @UseGuards(LocalAuthGuard) // localauthGuard reponsive
-  async login(@Request() req: any) {
-    return 'working'
+  @UseGuards(LocalAuthGuard) // localauthGuard reponsiv    
+     loginWithCredentials(@Request() req : any) {
+      const user = req.user
+      console.log(user)
+      try {
+        const payload = {
+          username: user.email,
+          userId: user.userId,
+        };
+  
+        return {
+          access_token: this.jwtTokenService.sign(payload),
+          userId: user.id,
+        };
+      } catch (error) {
+        console.log(error)
+        throw new HttpException({ msg: 'JWT_ERROR' }, HttpStatus.FORBIDDEN);
+      }
+    }
     // return this.userService.loginWithCredentials(req.user);
-  } 
 }

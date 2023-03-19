@@ -20,6 +20,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     if (null) {
       throw new UnauthorizedException();
     }
-    return user;
+    return user;   // it automaticaly attach with @Request
   }
 }

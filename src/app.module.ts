@@ -8,9 +8,7 @@ import { PassportModule } from '@nestjs/passport';
 
 
 @Module({
-  imports: [UserModule, AuthModule, BcryptModule, PassportModule.register({
-    session : true    
-  })],
+  imports: [UserModule, AuthModule, BcryptModule,],
   controllers: [AppController],
   providers: [AppService],
 })
