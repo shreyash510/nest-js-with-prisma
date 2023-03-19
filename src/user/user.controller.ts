@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
-import { LocalAuthGuard } from 'src/utils/Guard';
+import { JwtAuthGuard, LocalAuthGuard } from 'src/utils/Guard';
 import { CreateUserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { JwtService } from '@nestjs/jwt';
@@ -63,4 +63,11 @@ export class UserController {
       }
     }
     // return this.userService.loginWithCredentials(req.user);
+
+    @Get('simple')
+    @UseGuards(JwtAuthGuard)
+    simple(){
+    return 'simple api'
+  }
+
 }
