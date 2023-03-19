@@ -6,20 +6,18 @@ import { UserService } from 'src/user/user.service';
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private userService: UserService) {
-    super();
+// It that allows you to create subclasses that inherit from parent classes and reuse their code and functionality.
+    super();  
   }
 
   //  This method automatic calls when user passes username and password from body.
   //  **MUST MUST MUST MUST username and password field**
   async validate(username: string, password: string): Promise<any> {
 
-    // console.log('username',username) 
-    // console.log('password',password)
-
     const user = await this.userService.validateUserLocal(username, password);  
     if (null) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(); 
     }
-    return user;   // it automaticaly attach with @Request
+    return user;    // it automaticaly attach with @Request
   }
 }

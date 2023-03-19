@@ -43,10 +43,10 @@ export class UserController {
   }
 
   @Post('login')
-  @UseGuards(LocalAuthGuard) // localauthGuard reponsiv    
+  // useGuard is like a middleware to used for authentication, authorization, or other custom criteria.
+  @UseGuards(LocalAuthGuard) // localauthGuard reponsiv
      loginWithCredentials(@Request() req : any) {
       const user = req.user
-      console.log(user)
       try {
         const payload = {
           username: user.email,
@@ -62,7 +62,6 @@ export class UserController {
         throw new HttpException({ msg: 'JWT_ERROR' }, HttpStatus.FORBIDDEN);
       }
     }
-    // return this.userService.loginWithCredentials(req.user);
 
     @Get('simple')
     @UseGuards(JwtAuthGuard)
