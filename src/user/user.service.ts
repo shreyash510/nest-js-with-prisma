@@ -82,13 +82,16 @@ export class UserService {
  
   async validateUserLocal(username: string, password : string){
     try{
-      const user = this.prismaService.user.findUnique({
+      const user = await this.prismaService.user.findUnique({
         where : {
           email : username
         }
       })
-
-      return user
+      if (user && user.password === password) {
+        const { password, ...result } = user;
+        return result;
+      }
+      return null;
     }
     catch(e){
       console.log(e)
