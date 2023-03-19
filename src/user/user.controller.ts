@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { LocalAuthGuard } from 'src/utils/Guard';
 import { CreateUserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 
@@ -35,4 +36,11 @@ export class UserController {
   async deleteUser(@Param('userId', ParseIntPipe) userId : number){
     return this.userService.deleteUser(userId);
   }
+
+  @Post('login')
+  @UseGuards(LocalAuthGuard) // localauthGuard reponsive
+  async login(@Request() req: any) {
+    return 'working'
+    // return this.userService.loginWithCredentials(req.user);
+  } 
 }

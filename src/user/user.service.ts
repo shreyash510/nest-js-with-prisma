@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from 'src/user/dto/user.dto'
 
@@ -19,8 +19,9 @@ export class UserService {
   async createUser(userData: CreateUserDto) {
     try {
       const userDataObject = {
-        name: userData.name,
-        location: userData.location
+        email: userData.email,
+        location: userData.location,
+        password : userData.password
       }
       const user = this.prismaService.user.create({
         data: {
@@ -30,6 +31,7 @@ export class UserService {
       return user   
     } catch (e) {
       console.log(e)
+      throw new HttpException({ msg: 'USER CREATION FAILED!' }, HttpStatus.FORBIDDEN);
     }
   }
 
@@ -43,6 +45,7 @@ export class UserService {
       return user;
     }catch(e){
       console.log(e)
+      throw new HttpException({ msg: 'FAILED!' }, HttpStatus.FORBIDDEN);
     }
   }
 
@@ -59,6 +62,7 @@ export class UserService {
         return user;
       }catch(e){
         console.log(e)
+        throw new HttpException({ msg: 'FAILED!' }, HttpStatus.FORBIDDEN);
       }
   }
 
@@ -72,6 +76,34 @@ export class UserService {
       return user;
     }catch(e){
       console.log(e)
+      throw new HttpException({ msg: 'FAILED!' }, HttpStatus.FORBIDDEN);
     }
 }
+ 
+  async validateUserLocal(username: string, password : string){
+    try{
+      const user = this.prismaService.user.findUnique({
+        where : {
+          email : username
+        }
+      })
+
+      return user
+    }
+    catch(e){
+      console.log(e)
+      return null
+    }
+  }
+
+  // async validateUserLocal(){
+  //   try{
+
+  //   }
+  //   catch(e){
+  //     console.log(e)
+  //   }
+  // }
+
 }
+
