@@ -3,6 +3,9 @@ import { JwtAuthGuard, LocalAuthGuard } from 'src/utils/Guard';
 import { CreateUserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { JwtService } from '@nestjs/jwt';
+import { AdminRoleGuard } from 'src/auth/guard/admin-role.guard';
+import { RolesGuard } from 'src/auth/guard/roles.guard';
+import { Roles } from 'src/auth/guard/roles.decorator';
 
 
 @Controller('user')
@@ -18,6 +21,8 @@ export class UserController {
   }
 
   @Get('getAllUser')
+  @UseGuards(RolesGuard)
+  @Roles("admin", "user")
   async getAllTodos() {
     return this.userService.getAllUser();
   }
@@ -46,16 +51,18 @@ export class UserController {
   // useGuard is like a middleware to used for authentication, authorization, or other custom criteria.
   @UseGuards(LocalAuthGuard) // localauthGuard reponsiv
      loginWithCredentials(@Request() req : any) {
+      // console.log('loginWithCredentials',req)
       const user = req.user
       try {
         const payload = {
           username: user.email,
           userId: user.userId,
+          role : user.role
         };
   
         return {
           access_token: this.jwtTokenService.sign(payload),
-          userId: user.id,
+          userId: user.userId,
         };
       } catch (error) {
         console.log(error)

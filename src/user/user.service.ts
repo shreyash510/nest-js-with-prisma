@@ -24,13 +24,14 @@ export class UserService {
     const hashPassword = await this.bcryptService.plainToHash(userData.password)
     try {
       const userDataObject = {
-        email: userData.email,
-        location: userData.location,
-        password: hashPassword
+
       }
       const user = this.prismaService.user.create({
         data: {
-          ...userDataObject
+          email: userData.email,
+          location: userData.location,
+          password: hashPassword,
+          role : 'USER'
         }
       })
       return user
@@ -44,8 +45,8 @@ export class UserService {
     try {
       const user = this.prismaService.user.findUnique({
         where: {
-          userId: 1
-        }
+          userId: 1 
+        } 
       })
       return user;
     } catch (e) {
@@ -56,18 +57,18 @@ export class UserService {
 
   async updateUser(userBody: CreateUserDto, userId: number) {
     try {
-      const user = this.prismaService.user.update({
-        where: {
-          userId: userId
-        },
-        data: {
-          ...userBody
-        },
-      })
-      return user;
+      // const user = this.prismaService.user.update({
+      //   where: {
+      //     userId: userId
+      //   },
+      //   data: {
+      //     ...userBody
+      //   },
+      // })
+      // return user;
     } catch (e) {
-      console.log(e)
-      throw new HttpException({ msg: 'FAILED!' }, HttpStatus.FORBIDDEN);
+      // console.log(e)
+      // throw new HttpException({ msg: 'FAILED!' }, HttpStatus.FORBIDDEN);
     }
   }
 
@@ -89,7 +90,7 @@ export class UserService {
     try {
       const user = await this.prismaService.user.findUnique({
         where: {
-          email: username
+          email: username 
         }
       })
       if (user) {
