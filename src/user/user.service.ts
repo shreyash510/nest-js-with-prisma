@@ -99,10 +99,6 @@ export class UserService {
           return result
         }
       }
-      // if (user && user.password === password) {
-      //   const { password, ...result } = user;
-      //   return result;
-      // }
       return null;
     }
     catch (e) {
