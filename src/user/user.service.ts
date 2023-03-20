@@ -1,11 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BcryptService } from 'src/common/bcrypt_module/bcrypt.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from 'src/user/dto/user.dto'
 
 @Injectable()
 export class UserService {
 
-  constructor(private prismaService: PrismaService) { }
+  constructor(
+    private prismaService: PrismaService,
+    private bcryptService: BcryptService
+  ) { }
 
 
   getHello(): string {
@@ -17,83 +21,91 @@ export class UserService {
   }
 
   async createUser(userData: CreateUserDto) {
+    const hashPassword = await this.bcryptService.plainToHash(userData.password)
     try {
       const userDataObject = {
         email: userData.email,
         location: userData.location,
-        password : userData.password
+        password: hashPassword
       }
       const user = this.prismaService.user.create({
         data: {
           ...userDataObject
         }
       })
-      return user   
+      return user
     } catch (e) {
       console.log(e)
       throw new HttpException({ msg: 'USER CREATION FAILED!' }, HttpStatus.FORBIDDEN);
     }
   }
 
-  async getUserById(userId : number){
-    try{
+  async getUserById(userId: number) {
+    try {
       const user = this.prismaService.user.findUnique({
-        where : {
-          userId : 1 
+        where: {
+          userId: 1
         }
       })
       return user;
-    }catch(e){
+    } catch (e) {
       console.log(e)
       throw new HttpException({ msg: 'FAILED!' }, HttpStatus.FORBIDDEN);
     }
   }
 
-  async updateUser(userBody : CreateUserDto, userId : number){
-      try{
-        const user = this.prismaService.user.update({
-          where : {
-            userId : userId
-          },
-          data : {
-            ...userBody
-          },
-        })
-        return user;
-      }catch(e){
-        console.log(e)
-        throw new HttpException({ msg: 'FAILED!' }, HttpStatus.FORBIDDEN);
-      }
-  }
-
-  async deleteUser( userId : number){
-    try{
-      const user = this.prismaService.user.delete({
-        where : {
-          userId : userId
+  async updateUser(userBody: CreateUserDto, userId: number) {
+    try {
+      const user = this.prismaService.user.update({
+        where: {
+          userId: userId
+        },
+        data: {
+          ...userBody
         },
       })
       return user;
-    }catch(e){
+    } catch (e) {
       console.log(e)
       throw new HttpException({ msg: 'FAILED!' }, HttpStatus.FORBIDDEN);
     }
-}
- 
-  async validateUserLocal(username: string, password : string){
-    try{
+  }
+
+  async deleteUser(userId: number) {
+    try {
+      const user = this.prismaService.user.delete({
+        where: {
+          userId: userId
+        },
+      })
+      return user;
+    } catch (e) {
+      console.log(e)
+      throw new HttpException({ msg: 'FAILED!' }, HttpStatus.FORBIDDEN);
+    }
+  }
+
+  async validateUserLocal(username: string, password: string) {
+    try {
       const user = await this.prismaService.user.findUnique({
-        where : {
-          email : username
+        where: {
+          email: username
         }
       })
-      if (user && user.password === password) {
-        const { password, ...result } = user;
-        return result;
+      if (user) {
+        const compairPassword = await this.bcryptService.compareHash(password, user && user.password)
+        if (compairPassword) {
+          const { ...result } = user;
+          return result
+        }
       }
+      // if (user && user.password === password) {
+      //   const { password, ...result } = user;
+      //   return result;
+      // }
       return null;
     }
-    catch(e){
+    catch (e) {
       console.log(e)
       return null
     }

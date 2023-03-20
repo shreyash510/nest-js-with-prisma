@@ -5,7 +5,9 @@ import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private userService: UserService) {
+  constructor(
+    private userService: UserService
+    ) {
 // It that allows you to create subclasses that inherit from parent classes and reuse their code and functionality.
     super();  
   }
