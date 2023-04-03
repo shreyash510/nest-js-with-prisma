@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { BcryptService } from 'src/common/bcrypt_module/bcrypt.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from 'src/user/dto/user.dto'
@@ -23,21 +23,36 @@ export class UserService {
   async createUser(userData: CreateUserDto) {
     const hashPassword = await this.bcryptService.plainToHash(userData.password)
     try {
-      const userDataObject = {
-
-      }
-      const user = this.prismaService.user.create({
-        data: {
-          email: userData.email,
-          location: userData.location,
-          password: hashPassword,
-          role : 'USER'
+      const { email, location, password, role } = userData;
+      if (!email || !location || !password || !role) {
+        throw new NotFoundException('ENTER FULL DETAILS');
+      } 
+      else {
+        if (userData.role.toUpperCase() === 'ADMIN') {
+          const user = await this.prismaService.user.create({
+            data: {
+              email: userData.email,
+              location: userData.location,
+              password: hashPassword,
+              role: 'ADMIN'
+            }
+          })
+          return user
+        }else if (userData.role.toUpperCase() === 'USER') {
+          const user = await this.prismaService.user.create({
+            data: {
+              email: userData.email,
+              location: userData.location,
+              password: hashPassword,
+              role: 'USER'
+            }
+          })
+          return user
         }
-      })
-      return user
+      }
     } catch (e) {
       console.log(e)
-      throw new HttpException({ msg: 'USER CREATION FAILED!' }, HttpStatus.FORBIDDEN);
+      throw new HttpException({ msg: 'FAILED'}, HttpStatus.FORBIDDEN);
     }
   }
 
@@ -45,8 +60,8 @@ export class UserService {
     try {
       const user = this.prismaService.user.findUnique({
         where: {
-          userId: 1 
-        } 
+          userId: 1
+        }
       })
       return user;
     } catch (e) {
@@ -90,7 +105,7 @@ export class UserService {
     try {
       const user = await this.prismaService.user.findUnique({
         where: {
-          email: username 
+          email: username
         }
       })
       if (user) {
